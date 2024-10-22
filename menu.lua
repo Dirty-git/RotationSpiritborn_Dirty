@@ -30,6 +30,17 @@ local menu_elements =
     targeting_refresh_interval    = slider_float:new(0.1, 1, 0.2,
         get_hash(my_utility.plugin_label .. "targeting_refresh_interval")),
 
+    custom_enemy_weights_tree     = tree_node:new(2),
+    custom_enemy_weights          = checkbox:new(false, get_hash(my_utility.plugin_label .. "custom_enemy_weights")),
+    enemy_weight_normal           = slider_int:new(1, 10, 2,
+        get_hash(my_utility.plugin_label .. "enemy_weight_normal")),
+    enemy_weight_elite            = slider_int:new(1, 50, 10,
+        get_hash(my_utility.plugin_label .. "enemy_weight_elite")),
+    enemy_weight_champion         = slider_int:new(1, 50, 15,
+        get_hash(my_utility.plugin_label .. "enemy_weight_champion")),
+    enemy_weight_boss             = slider_int:new(1, 100, 50,
+        get_hash(my_utility.plugin_label .. "enemy_weight_boss")),
+
     spells_tree                   = tree_node:new(1),
 }
 

@@ -67,7 +67,23 @@ on_render_menu(function()
         menu.menu_elements.best_target_evaluation_radius:render("Enemy Evaluation Radius",
             "       Area size around an enemy to evaluate if it's the best target       \n" ..
             "       If you use huge aoe spells, you should increase this value       \n" ..
-            "       Size is displayed with debug display targets       ", 1)
+            "       Size is displayed with debug/display targets with faded white circles       ", 1)
+
+        menu.menu_elements.custom_enemy_weights:render("Custom Enemy Weights",
+            "Enable custom enemy weights for determining best targets within Enemy Evaluation Radius")
+        if menu.menu_elements.custom_enemy_weights:get() then
+            if menu.menu_elements.custom_enemy_weights_tree:push("Custom Enemy Weights") then
+                menu.menu_elements.enemy_weight_normal:render("Normal Enemy Weight",
+                    "Weighing score for normal enemies - default is 2")
+                menu.menu_elements.enemy_weight_elite:render("Elite Enemy Weight",
+                    "Weighing score for elite enemies - default is 10")
+                menu.menu_elements.enemy_weight_champion:render("Champion Enemy Weight",
+                    "Weighing score for champion enemies - default is 15")
+                menu.menu_elements.enemy_weight_boss:render("Boss Enemy Weight",
+                    "Weighing score for boss enemies - default is 50")
+                menu.menu_elements.custom_enemy_weights_tree:pop()
+            end
+        end
 
         menu.menu_elements.enable_debug:render("Enable Debug", "")
         if menu.menu_elements.enable_debug:get() then
@@ -83,7 +99,6 @@ on_render_menu(function()
                 menu.menu_elements.debug_tree:pop()
             end
         end
-
 
         menu.menu_elements.settings_tree:pop()
     end
@@ -143,11 +158,11 @@ local next_target_update_time = 0.0 -- Time of next target evaluation
 local next_cast_time = 0.0          -- Time of next possible cast
 local targeting_refresh_interval = menu.menu_elements.targeting_refresh_interval:get()
 
--- Define scores for different enemy types
-local normal_monster_value = 1
-local elite_value = 2
-local champion_value = 3
-local boss_value = 20
+-- Default enemy weights for different enemy types
+local normal_monster_value = 2
+local elite_value = 10
+local champion_value = 15
+local boss_value = 50
 
 local target_selector_data_all = nil
 
@@ -296,6 +311,7 @@ on_update(function()
             return
         end
 
+        -- Reset targets
         best_ranged_target = nil
         best_melee_target = nil
         closest_target = nil
@@ -305,6 +321,14 @@ on_update(function()
         best_cursor_target = nil
         closest_cursor_target = nil
         local melee_range = my_utility.get_melee_range()
+
+        -- Update enemy weights if custom weights are enabled
+        if menu.menu_elements.custom_enemy_weights:get() then
+            normal_monster_value = menu.menu_elements.enemy_weight_normal:get()
+            elite_value = menu.menu_elements.enemy_weight_elite:get()
+            champion_value = menu.menu_elements.enemy_weight_champion:get()
+            boss_value = menu.menu_elements.enemy_weight_boss:get()
+        end
 
         -- Check all targets within max range
         if target_selector_data_all and target_selector_data_all.is_valid then
@@ -518,4 +542,4 @@ on_render(function()
     end
 end);
 
-console.print("Lua Plugin - Spiritborn Dirty - Version 1.0");
+console.print("Lua Plugin - Spiritborn Dirty - Version 1.1.0");
