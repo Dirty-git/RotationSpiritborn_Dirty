@@ -5,7 +5,7 @@ local menu_elements =
     tree_tab       = tree_node:new(1),
     main_boolean   = checkbox:new(true, get_hash(my_utility.plugin_label .. "soar_main_boolean")),
     targeting_mode = combo_box:new(0, get_hash(my_utility.plugin_label .. "soar_targeting_mode")),
-    check_buff     = checkbox:new(false, get_hash(my_utility.plugin_label .. "check_buff_soar")),
+    check_buff     = checkbox:new(false, get_hash(my_utility.plugin_label .. "soar_check_buff")),
 }
 
 local function menu()

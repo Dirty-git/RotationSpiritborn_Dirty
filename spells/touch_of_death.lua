@@ -6,7 +6,7 @@ local menu_elements =
     main_boolean   = checkbox:new(true, get_hash(my_utility.plugin_label .. "touch_of_death_main_boolean")),
     targeting_mode = combo_box:new(0, get_hash(my_utility.plugin_label .. "touch_of_death_targeting_mode")),
     swarm_stacking = checkbox:new(true,
-        get_hash(my_utility.plugin_label .. "swarm_stacking")),
+        get_hash(my_utility.plugin_label .. "touch_of_death_swarm_stacking")),
 }
 
 local function menu()

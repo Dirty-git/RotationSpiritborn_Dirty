@@ -1,6 +1,9 @@
 # RotationSpiritborn_Dirty
 
 ## Changelog
+ ### v1.1.1
+- GUI label fixes (all settings should now save correctly)
+
  ### v1.1.0
 - Added custom enemy weights
 - Default enemy weights adjusted (favours elites and bosses for targeting)

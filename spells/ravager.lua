@@ -3,13 +3,13 @@ local my_utility = require("my_utility/my_utility")
 local menu_elements =
 {
     tree_tab         = tree_node:new(1),
-    main_boolean     = checkbox:new(true, get_hash(my_utility.plugin_label .. "main_boolean_ravager_base")),
+    main_boolean     = checkbox:new(true, get_hash(my_utility.plugin_label .. "ravager_base_main_bool")),
     filter_mode      = combo_box:new(0, get_hash(my_utility.plugin_label .. "ravager_base_filter_mode")),
     min_max_targets  = slider_int:new(0, 30, 5,
-        get_hash(my_utility.plugin_label .. "min_max_number_of_targets_for_ravager_base")),
-    check_buff       = checkbox:new(false, get_hash(my_utility.plugin_label .. "check_buff_ravager_base")),
+        get_hash(my_utility.plugin_label .. "ravager_base_min_max_targets")),
+    check_buff       = checkbox:new(false, get_hash(my_utility.plugin_label .. "ravager_base_check_buff")),
     evaluation_range = slider_int:new(1, 16, 12,
-        get_hash(my_utility.plugin_label .. "evaluation_range_ravager_base")),
+        get_hash(my_utility.plugin_label .. "ravager_base_evaluation_range")),
 }
 
 local function menu()

@@ -542,4 +542,4 @@ on_render(function()
     end
 end);
 
-console.print("Lua Plugin - Spiritborn Dirty - Version 1.1.0");
+console.print("Lua Plugin - Spiritborn Dirty - Version 1.1.1");
