@@ -35,13 +35,13 @@ local menu_elements =
 
 local draw_targets_description =
     "\n     Targets in sight:\n" ..
-    "     Ranged Target - BLUE circle with line     \n" ..
+    "     Ranged Target - RED circle with line     \n" ..
     "     Melee Target - GREEN circle with line     \n" ..
-    "     Closest Target - RED circle with line     \n\n" ..
+    "     Closest Target - CYAN circle with line     \n\n" ..
     "     Targets out of sight:\n" ..
-    "     Ranged Target - faded BLUE octagon     \n" ..
+    "     Ranged Target - faded RED octagon     \n" ..
     "     Melee Target - faded GREEN octagon     \n" ..
-    "     Closest Target - faded RED octagon     \n\n" ..
+    "     Closest Target - faded CYAN octagon     \n\n" ..
     "     Best Target Evaluation Radius:\n" ..
     "     faded WHITE circle       \n\n"
 
