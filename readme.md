@@ -7,10 +7,19 @@ The priority of spells can be adjusted by changing the sequence in spell_priorit
 1. Open the spell_priority.lua file.
 2. Reorder the entries in `spell_priority` list to match your desired priority.
 3. Save the file.
+4. Reload the script (Default: F5).
 
 Note: This also reorders the spells in the UI. So you can check in-game if the priority is correct. If a spell is not visible, make sure the the name is correctly spelled and in the list.
 
 ## Changelog
+
+### v1.3.0
+
+- Added mobility only option to Soar, The Hunter, Rushing Claw and Evade
+- Increased general spell casting frequency
+- Updated default spell priority (suits most builds better)
+- Updated spell defaults and setting ranges (better experience out of the box)
+- Updated spell data for mobility only options
 
 ### v1.2.0
 

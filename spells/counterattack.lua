@@ -4,14 +4,14 @@ local menu_elements =
 {
     tree_tab              = tree_node:new(1),
     main_boolean          = checkbox:new(false, get_hash(my_utility.plugin_label .. "main_boolean_counterattack")),
-    hp_usage_shield       = slider_float:new(0.0, 1.0, 0.30,
+    hp_usage_shield       = slider_float:new(0.0, 1.0, 0.80,
         get_hash(my_utility.plugin_label .. "%_counterattack_hp_usage")),
     use_offensively       = checkbox:new(true, get_hash(my_utility.plugin_label .. "use_offensively_counterattack")),
     spam_with_intricacy   = checkbox:new(true, get_hash(my_utility.plugin_label .. "spam_with_intricacy_counterattack")),
-    filter_mode           = combo_box:new(0, get_hash(my_utility.plugin_label .. "offensive_filter_counterattack")),
+    filter_mode           = combo_box:new(1, get_hash(my_utility.plugin_label .. "offensive_filter_counterattack")),
     enemy_count_threshold = slider_int:new(0, 30, 5, get_hash(my_utility.plugin_label .. "min_enemy_count_counterattack")),
-    check_buff            = checkbox:new(false, get_hash(my_utility.plugin_label .. "check_buff_counterattack")),
-    evaluation_range      = slider_int:new(1, 16, 12,
+    check_buff            = checkbox:new(true, get_hash(my_utility.plugin_label .. "check_buff_counterattack")),
+    evaluation_range      = slider_int:new(1, 16, 6,
         get_hash(my_utility.plugin_label .. "evaluation_range_counterattack")),
 }
 

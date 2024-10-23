@@ -4,10 +4,10 @@ local menu_elements =
 {
     tree_tab           = tree_node:new(1),
     main_boolean       = checkbox:new(false, get_hash(my_utility.plugin_label .. "rock_splitter_main_bool_base")),
-    targeting_mode     = combo_box:new(0, get_hash(my_utility.plugin_label .. "rock_splitter_targeting_mode")),
+    targeting_mode     = combo_box:new(5, get_hash(my_utility.plugin_label .. "rock_splitter_targeting_mode")),
     check_buff         = checkbox:new(false, get_hash(my_utility.plugin_label .. "rock_splitter_check_buff")),
-    use_as_filler_only = checkbox:new(true, get_hash(my_utility.plugin_label .. "rock_splitter_use_as_filler_only")),
-    max_spirit         = slider_int:new(1, 400, 35,
+    use_as_filler_only = checkbox:new(false, get_hash(my_utility.plugin_label .. "rock_splitter_use_as_filler_only")),
+    max_spirit         = slider_int:new(1, 100, 35,
         get_hash(my_utility.plugin_label .. "rock_splitter_max_spirit")),
 }
 

@@ -4,14 +4,14 @@ local menu_elements =
 {
     tree_tab              = tree_node:new(1),
     main_boolean          = checkbox:new(false, get_hash(my_utility.plugin_label .. "main_boolean_armored_hide")),
-    hp_usage_shield       = slider_float:new(0.0, 1.0, 0.30,
+    hp_usage_shield       = slider_float:new(0.0, 1.0, 0.80,
         get_hash(my_utility.plugin_label .. "%_armored_hide_hp_usage")),
     use_offensively       = checkbox:new(true, get_hash(my_utility.plugin_label .. "use_offensively_armored_hide")),
     spam_with_intricacy   = checkbox:new(true, get_hash(my_utility.plugin_label .. "spam_with_intricacy_armored_hide")),
-    filter_mode           = combo_box:new(0, get_hash(my_utility.plugin_label .. "offensive_filter_armored_hide")),
+    filter_mode           = combo_box:new(1, get_hash(my_utility.plugin_label .. "offensive_filter_armored_hide")),
     enemy_count_threshold = slider_int:new(0, 30, 5, get_hash(my_utility.plugin_label .. "min_enemy_count_armored_hide")),
-    check_buff            = checkbox:new(false, get_hash(my_utility.plugin_label .. "check_buff_armored_hide")),
-    evaluation_range      = slider_int:new(1, 16, 12,
+    check_buff            = checkbox:new(true, get_hash(my_utility.plugin_label .. "check_buff_armored_hide")),
+    evaluation_range      = slider_int:new(1, 16, 6,
         get_hash(my_utility.plugin_label .. "evaluation_range_armored_hide")),
 }
 

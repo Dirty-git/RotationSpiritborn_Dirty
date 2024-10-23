@@ -4,10 +4,10 @@ local menu_elements =
 {
     tree_tab              = tree_node:new(1),
     main_boolean          = checkbox:new(false, get_hash(my_utility.plugin_label .. "main_boolean_scourge_base")),
-    filter_mode           = combo_box:new(0, get_hash(my_utility.plugin_label .. "offensive_filter_scourge")),
+    filter_mode           = combo_box:new(1, get_hash(my_utility.plugin_label .. "offensive_filter_scourge")),
     enemy_count_threshold = slider_int:new(0, 30, 5, get_hash(my_utility.plugin_label .. "min_enemy_count_scourge")),
     check_buff            = checkbox:new(false, get_hash(my_utility.plugin_label .. "check_buff_scourge")),
-    evaluation_range      = slider_int:new(1, 16, 6,
+    evaluation_range      = slider_int:new(1, 16, 4,
         get_hash(my_utility.plugin_label .. "evaluation_range_scourge")),
 }
 

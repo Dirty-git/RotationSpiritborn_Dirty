@@ -5,9 +5,9 @@ local menu_elements =
     tree_tab              = tree_node:new(1),
     main_boolean          = checkbox:new(false, get_hash(my_utility.plugin_label .. "ravager_base_main_bool")),
     filter_mode           = combo_box:new(0, get_hash(my_utility.plugin_label .. "ravager_base_filter_mode")),
-    enemy_count_threshold = slider_int:new(0, 30, 5,
+    enemy_count_threshold = slider_int:new(0, 30, 1,
         get_hash(my_utility.plugin_label .. "ravager_base_enemy_count_threshold")),
-    check_buff            = checkbox:new(false, get_hash(my_utility.plugin_label .. "ravager_base_check_buff")),
+    check_buff            = checkbox:new(true, get_hash(my_utility.plugin_label .. "ravager_base_check_buff")),
     evaluation_range      = slider_int:new(1, 16, 12,
         get_hash(my_utility.plugin_label .. "ravager_base_evaluation_range")),
 }

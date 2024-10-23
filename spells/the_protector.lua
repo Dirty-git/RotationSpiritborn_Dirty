@@ -4,12 +4,12 @@ local menu_elements =
 {
     tree_tab              = tree_node:new(1),
     main_boolean          = checkbox:new(false, get_hash(my_utility.plugin_label .. "main_boolean_the_protector")),
-    hp_usage_shield       = slider_float:new(0.0, 1.0, 0.30,
+    hp_usage_shield       = slider_float:new(0.0, 1.0, 0.80,
         get_hash(my_utility.plugin_label .. "%_the_protector_hp_usage")),
     use_offensively       = checkbox:new(true, get_hash(my_utility.plugin_label .. "use_offensively_the_protector")),
-    filter_mode           = combo_box:new(0, get_hash(my_utility.plugin_label .. "offensive_filter_the_protector")),
+    filter_mode           = combo_box:new(1, get_hash(my_utility.plugin_label .. "offensive_filter_the_protector")),
     enemy_count_threshold = slider_int:new(0, 30, 5, get_hash(my_utility.plugin_label .. "min_enemy_count_the_protector")),
-    check_buff            = checkbox:new(false, get_hash(my_utility.plugin_label .. "check_buff_the_protector")),
+    check_buff            = checkbox:new(true, get_hash(my_utility.plugin_label .. "check_buff_the_protector")),
     evaluation_range      = slider_int:new(1, 16, 6,
         get_hash(my_utility.plugin_label .. "evaluation_range_the_protector")),
 }

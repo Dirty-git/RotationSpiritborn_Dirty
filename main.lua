@@ -44,7 +44,7 @@ local spells =
 }
 
 on_render_menu(function()
-    if not menu.menu_elements.main_tree:push("Spiritborn [Dirty] v1.2.0") then
+    if not menu.menu_elements.main_tree:push("Spiritborn [Dirty] v1.3.0") then
         return;
     end;
 
@@ -356,13 +356,7 @@ on_update(function()
     for _, spell_name in ipairs(spell_priority) do
         local spell = spells[spell_name]
         if spell then
-            -- spells with matching names are instant cast
-            local delay = spell_name == "evade" or spell_name == "armored_hide" or spell_name == "counterattack" or
-                spell_name == "ravager" or spell_name == "scourge" or spell_name == "vortex" or
-                spell_name == "toxic_skin"
-                and my_utility.spell_delays.instant_cast
-                or my_utility.spell_delays.regular_cast
-            if use_ability(spell_name, delay) then
+            if use_ability(spell_name, my_utility.spell_delays.instant_cast) then
                 return
             end
         end
@@ -535,4 +529,4 @@ on_render(function()
     end
 end);
 
-console.print("Lua Plugin - Spiritborn Dirty - Version 1.2.0");
+console.print("Lua Plugin - Spiritborn Dirty - Version 1.3.0");

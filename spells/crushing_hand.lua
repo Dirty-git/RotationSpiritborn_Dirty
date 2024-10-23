@@ -4,7 +4,7 @@ local menu_elements =
 {
     tree_tab       = tree_node:new(1),
     main_boolean   = checkbox:new(false, get_hash(my_utility.plugin_label .. "crushing_hand_base_main_bool")),
-    targeting_mode = combo_box:new(0, get_hash(my_utility.plugin_label .. "crushing_hand_base_targeting_mode")),
+    targeting_mode = combo_box:new(3, get_hash(my_utility.plugin_label .. "crushing_hand_base_targeting_mode")),
 }
 
 local function menu()

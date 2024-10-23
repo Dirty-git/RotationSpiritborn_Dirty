@@ -1,28 +1,41 @@
+-- To modify spell priority, edit the spell_priority table below.
+-- The table is sorted from highest priority to lowest priority.
+-- The priority is used to determine which spell to cast when multiple spells are valid to cast.
+
 local spell_priority = {
-    "evade",
+    -- instant cast
     "armored_hide",
     "counterattack",
-    "ravager",
-    "the_seeker",
-    "touch_of_death",
-    "concussive_stomp",
-    "crushing_hand",
-    "payback",
-    "quill_volley",
-    "rake",
-    "razor_wings",
-    "rock_splitter",
-    "rushing_claw",
     "scourge",
-    "soar",
-    "stinger",
-    "the_devourer",
-    "the_hunter",
-    "the_protector",
-    "thrash",
-    "thunderspike",
+    "ravager",
     "toxic_skin",
     "vortex",
+    "evade",
+
+    -- ultimates
+    "the_hunter",
+    "the_seeker",
+    "the_devourer",
+    "the_protector",
+
+    -- main damage abilities
+    "quill_volley",
+    "crushing_hand",
+    "stinger",
+    "rake",
+    "touch_of_death",
+    "payback",
+    "razor_wings",
+    "concussive_stomp",
+
+    -- mobility
+    "soar",
+    "rushing_claw",
+
+    -- filler abilities
+    "rock_splitter",
+    "thrash",
+    "thunderspike",
     "withering_fist",
 }
 
