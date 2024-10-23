@@ -4,7 +4,7 @@ local my_utility = require("my_utility/my_utility")
 local menu_elements =
 {
     tree_tab       = tree_node:new(1),
-    main_boolean   = checkbox:new(true, get_hash(my_utility.plugin_label .. "evade_main_bool_base")),
+    main_boolean   = checkbox:new(false, get_hash(my_utility.plugin_label .. "evade_main_bool_base")),
     targeting_mode = combo_box:new(0, get_hash(my_utility.plugin_label .. "evade_targeting_mode")),
 }
 

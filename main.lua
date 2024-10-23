@@ -11,6 +11,7 @@ end;
 
 local my_target_selector = require("my_utility/my_target_selector");
 local my_utility = require("my_utility/my_utility");
+local spell_priority = require("spell_priority");
 local menu = require("menu")
 
 local spells =
@@ -43,21 +44,21 @@ local spells =
 }
 
 on_render_menu(function()
-    if not menu.menu_elements.main_tree:push("Spiritborn [Dirty]") then
+    if not menu.menu_elements.main_tree:push("Spiritborn [Dirty] v1.2.0") then
         return;
     end;
 
     menu.menu_elements.main_boolean:render("Enable Plugin", "");
 
-    if menu.menu_elements.main_boolean:get() == false then
+    if not menu.menu_elements.main_boolean:get() then
         -- plugin not enabled, stop rendering menu elements
         menu.menu_elements.main_tree:pop();
         return;
     end;
 
     if menu.menu_elements.settings_tree:push("Settings") then
-        menu.menu_elements.normal_monster_threshold:render("Normal Monster Threshold",
-            "Threshold for considering normal monsters in target selection")
+        menu.menu_elements.enemy_count_threshold:render("Minimum Enemy Count",
+            "       Minimum number of enemies in Enemy Evaluation Radius to consider them for targeting")
         menu.menu_elements.targeting_refresh_interval:render("Targeting Refresh Interval",
             "       Time between target checks in seconds       ", 1)
         menu.menu_elements.max_targeting_range:render("Max Targeting Range",
@@ -103,35 +104,24 @@ on_render_menu(function()
         menu.menu_elements.settings_tree:pop()
     end
 
-    -- TODO ENABLE ALL SPELLS
-    if menu.menu_elements.spells_tree:push("Spells") then
-        spells.armored_hide.menu()
-        spells.scourge.menu()
-        spells.ravager.menu()
-        spells.the_hunter.menu()
-        spells.soar.menu()
-        spells.vortex.menu()
-        spells.crushing_hand.menu()
-        spells.counterattack.menu()
-        spells.the_seeker.menu()
-        spells.touch_of_death.menu()
-        spells.concussive_stomp.menu()
-        spells.payback.menu()
-        spells.quill_volley.menu()
-        spells.rake.menu()
-        spells.razor_wings.menu()
-        spells.rushing_claw.menu()
-        spells.stinger.menu()
-        spells.the_devourer.menu()
-        spells.the_protector.menu()
-        spells.toxic_skin.menu()
-        spells.thrash.menu()
-        spells.withering_fist.menu()
-        spells.rock_splitter.menu()
-        spells.thunderspike.menu()
-        spells.evade.menu()
-
+    if menu.menu_elements.spells_tree:push("Activated Spells") then
+        for _, spell_name in ipairs(spell_priority) do
+            local spell = spells[spell_name]
+            if spell and spell.menu_elements.main_boolean:get() then
+                spell.menu()
+            end
+        end
         menu.menu_elements.spells_tree:pop()
+    end
+
+    if menu.menu_elements.disabled_spells_tree:push("Disabled Spells") then
+        for _, spell_name in ipairs(spell_priority) do
+            local spell = spells[spell_name]
+            if spell and not spell.menu_elements.main_boolean:get() then
+                spell.menu_elements.main_boolean:render("Enable " .. spell_name, "")
+            end
+        end
+        menu.menu_elements.disabled_spells_tree:pop()
     end
 
     menu.menu_elements.main_tree:pop();
@@ -146,6 +136,13 @@ local closest_target = nil
 local closest_target_visible = nil
 local best_cursor_target = nil
 local closest_cursor_target = nil
+
+-- Targetting scores
+local ranged_max_score = 0
+local ranged_max_score_visible = 0
+local melee_max_score = 0
+local melee_max_score_visible = 0
+local cursor_max_score = 0
 
 -- Targetting settings
 local max_targeting_range = menu.menu_elements.max_targeting_range:get()
@@ -183,7 +180,7 @@ local function evaluate_targets(target_list, melee_range)
     local cursor_targeting_radius_sqr = cursor_targeting_radius * cursor_targeting_radius
     local best_target_evaluation_radius = menu.menu_elements.best_target_evaluation_radius:get()
 
-    local normal_threshold = menu.menu_elements.normal_monster_threshold:get()
+    local enemy_count_threshold = menu.menu_elements.enemy_count_threshold:get()
     local closest_cursor_distance_sqr = math.huge
 
     for _, unit in ipairs(target_list) do
@@ -191,26 +188,22 @@ local function evaluate_targets(target_list, melee_range)
         local distance_sqr = unit_position:squared_dist_to_ignore_z(player_position)
         local cursor_distance_sqr = unit_position:squared_dist_to_ignore_z(cursor_position)
 
-        local is_boss = unit:is_boss()
-        local has_champion = unit:is_champion()
-        local has_elite = unit:is_elite()
+        -- get enemy count in range of enemy unit
+        local all_units_count, normal_units_count, elite_units_count, champion_units_count, boss_units_count = my_utility
+            .enemy_count_in_range(best_target_evaluation_radius, unit_position)
 
-        local area_data = target_selector.get_most_hits_target_circular_area_light(unit_position, 0,
-            best_target_evaluation_radius, false)
-        if not area_data then goto continue end
-
-        local n_normals = area_data.n_hits
-        if n_normals < normal_threshold and not (has_elite or has_champion or is_boss) then
+        -- if enemy count is less than enemy count threshold and unit is not elite, champion or boss, skip this unit
+        if all_units_count < enemy_count_threshold and not (unit:is_elite() or unit:is_champion() or unit:is_boss()) then
             goto continue
         end
 
-        local total_score = n_normals * normal_monster_value
-        if is_boss then
-            total_score = total_score + boss_value
-        elseif has_champion then
-            total_score = total_score + champion_value
-        elseif has_elite then
-            total_score = total_score + elite_value
+        local total_score = normal_units_count * normal_monster_value
+        if boss_units_count > 0 then
+            total_score = total_score + boss_value * boss_units_count
+        elseif champion_units_count > 0 then
+            total_score = total_score + champion_value * champion_units_count
+        elseif elite_units_count > 0 then
+            total_score = total_score + elite_value * elite_units_count
         end
 
         -- in max range
@@ -241,7 +234,8 @@ local function evaluate_targets(target_list, melee_range)
         ::continue::
     end
 
-    return best_ranged_target, best_melee_target, best_cursor_target, closest_cursor_target
+    return best_ranged_target, best_melee_target, best_cursor_target, closest_cursor_target, ranged_max_score,
+        melee_max_score, cursor_max_score
 end
 
 local function use_ability(spell_name, delay_after_cast)
@@ -322,17 +316,23 @@ on_update(function()
         closest_cursor_target = nil
         local melee_range = my_utility.get_melee_range()
 
-        -- Update enemy weights if custom weights are enabled
+        -- Update enemy weights, use custom weights if enabled
         if menu.menu_elements.custom_enemy_weights:get() then
             normal_monster_value = menu.menu_elements.enemy_weight_normal:get()
             elite_value = menu.menu_elements.enemy_weight_elite:get()
             champion_value = menu.menu_elements.enemy_weight_champion:get()
             boss_value = menu.menu_elements.enemy_weight_boss:get()
+        else
+            normal_monster_value = 2
+            elite_value = 10
+            champion_value = 15
+            boss_value = 50
         end
 
         -- Check all targets within max range
         if target_selector_data_all and target_selector_data_all.is_valid then
-            best_ranged_target, best_melee_target, best_cursor_target, closest_cursor_target = evaluate_targets(
+            best_ranged_target, best_melee_target, best_cursor_target, closest_cursor_target, ranged_max_score,
+            melee_max_score, cursor_max_score = evaluate_targets(
                 target_selector_data_all.list,
                 melee_range)
             closest_target = target_selector_data_all.closest_unit
@@ -341,7 +341,8 @@ on_update(function()
 
         -- Check visible targets within max range
         if target_selector_data_visible and target_selector_data_visible.is_valid then
-            best_ranged_target_visible, best_melee_target_visible = evaluate_targets(
+            best_ranged_target_visible, best_melee_target_visible, _, _,
+            ranged_max_score_visible, melee_max_score_visible, _ = evaluate_targets(
                 target_selector_data_visible.list,
                 melee_range)
             closest_target_visible = target_selector_data_visible.closest_unit
@@ -351,32 +352,21 @@ on_update(function()
         next_target_update_time = current_time + targeting_refresh_interval
     end
 
-    -- Ability usage - Sequence influences priority
-    if use_ability("evade", my_utility.spell_delays.instant_cast) then return end
-    if use_ability("armored_hide", my_utility.spell_delays.instant_cast) then return end
-    if use_ability("ravager", my_utility.spell_delays.instant_cast) then return end
-    if use_ability("counterattack", my_utility.spell_delays.instant_cast) then return end
-    if use_ability("the_hunter", my_utility.spell_delays.regular_cast) then return end
-    if use_ability("soar", my_utility.spell_delays.regular_cast) then return end
-    if use_ability("scourge", my_utility.spell_delays.instant_cast) then return end
-    if use_ability("vortex", my_utility.spell_delays.instant_cast) then return end
-    if use_ability("crushing_hand", my_utility.spell_delays.regular_cast) then return end
-    if use_ability("quill_volley", my_utility.spell_delays.regular_cast) then return end
-    if use_ability("the_seeker", my_utility.spell_delays.regular_cast) then return end
-    if use_ability("the_devourer", my_utility.spell_delays.regular_cast) then return end
-    if use_ability("touch_of_death", my_utility.spell_delays.regular_cast) then return end
-    if use_ability("concussive_stomp", my_utility.spell_delays.regular_cast) then return end
-    if use_ability("payback", my_utility.spell_delays.regular_cast) then return end
-    if use_ability("rake", my_utility.spell_delays.regular_cast) then return end
-    if use_ability("razor_wings", my_utility.spell_delays.regular_cast) then return end
-    if use_ability("rushing_claw", my_utility.spell_delays.regular_cast) then return end
-    if use_ability("stinger", my_utility.spell_delays.regular_cast) then return end
-    if use_ability("the_protector", my_utility.spell_delays.regular_cast) then return end
-    if use_ability("toxic_skin", my_utility.spell_delays.instant_cast) then return end
-    if use_ability("thunderspike", my_utility.spell_delays.regular_cast) then return end
-    if use_ability("rock_splitter", my_utility.spell_delays.regular_cast) then return end
-    if use_ability("thrash", my_utility.spell_delays.regular_cast) then return end
-    if use_ability("withering_fist", my_utility.spell_delays.regular_cast) then return end
+    -- Ability usage - uses spell_priority to determine the order of spells
+    for _, spell_name in ipairs(spell_priority) do
+        local spell = spells[spell_name]
+        if spell then
+            -- spells with matching names are instant cast
+            local delay = spell_name == "evade" or spell_name == "armored_hide" or spell_name == "counterattack" or
+                spell_name == "ravager" or spell_name == "scourge" or spell_name == "vortex" or
+                spell_name == "toxic_skin"
+                and my_utility.spell_delays.instant_cast
+                or my_utility.spell_delays.regular_cast
+            if use_ability(spell_name, delay) then
+                return
+            end
+        end
+    end
 end)
 
 -- Debug
@@ -455,7 +445,8 @@ on_render(function()
                 color_white(target_evaluation_radius_alpha), 1);
             local text_position = vec2:new(best_ranged_target_visible_position_2d.x,
                 best_ranged_target_visible_position_2d.y - y_offset)
-            graphics.text_2d("RANGED_VISIBLE", text_position, font_size, color_red(visible_text))
+            graphics.text_2d("RANGED_VISIBLE - Score:" .. ranged_max_score_visible, text_position, font_size,
+                color_red(visible_text))
         end
 
         -- Draw ranged target if it's not the same as the visible ranged target
@@ -467,7 +458,7 @@ on_render(function()
                 color_white(target_evaluation_radius_alpha), 1);
             local text_position = vec2:new(best_ranged_target_position_2d.x,
                 best_ranged_target_position_2d.y - y_offset)
-            graphics.text_2d("RANGED", text_position, font_size, color_red_pale(alpha))
+            graphics.text_2d("RANGED - Score:" .. ranged_max_score, text_position, font_size, color_red_pale(alpha))
         end
 
         -- Draw visible melee target
@@ -481,7 +472,8 @@ on_render(function()
                 color_white(target_evaluation_radius_alpha), 1);
             local text_position = vec2:new(best_melee_target_visible_position_2d.x,
                 best_melee_target_visible_position_2d.y)
-            graphics.text_2d("MELEE_VISIBLE", text_position, font_size, color_green(visible_text))
+            graphics.text_2d("MELEE_VISIBLE" .. melee_max_score_visible, text_position, font_size,
+                color_green(visible_text))
         end
 
         -- Draw melee target if it's not the same as the visible melee target
@@ -492,7 +484,7 @@ on_render(function()
             graphics.circle_3d(best_melee_target_position, best_target_evaluation_radius,
                 color_white(target_evaluation_radius_alpha), 1);
             local text_position = vec2:new(best_melee_target_position_2d.x, best_melee_target_position_2d.y)
-            graphics.text_2d("MELEE", text_position, font_size, color_green_pale(alpha))
+            graphics.text_2d("MELEE - Score:" .. melee_max_score, text_position, font_size, color_green_pale(alpha))
         end
 
         -- Draw visible closest target
@@ -526,7 +518,8 @@ on_render(function()
             local best_cursor_target_position = best_cursor_target:get_position();
             local best_cursor_target_position_2d = graphics.w2s(best_cursor_target_position);
             graphics.circle_3d(best_cursor_target_position, 0.60, color_orange_red(255), 2.0, 5);
-            graphics.text_2d("best_cursor_target", best_cursor_target_position_2d, font_size, color_orange_red(255))
+            graphics.text_2d("BEST_CURSOR_TARGET - Score:" .. cursor_max_score, best_cursor_target_position_2d, font_size,
+                color_orange_red(255))
         end
 
         -- Draw closest cursor target
@@ -536,10 +529,10 @@ on_render(function()
             graphics.circle_3d(closest_cursor_target_position, 0.40, color_green_pastel(255), 2.0, 5);
             local text_position = vec2:new(closest_cursor_target_position_2d.x,
                 closest_cursor_target_position_2d.y + y_offset)
-            graphics.text_2d("closest_cursor_target", text_position, font_size,
+            graphics.text_2d("CLOSEST_CURSOR_TARGET", text_position, font_size,
                 color_green_pastel(255))
         end
     end
 end);
 
-console.print("Lua Plugin - Spiritborn Dirty - Version 1.1.1");
+console.print("Lua Plugin - Spiritborn Dirty - Version 1.2.0");

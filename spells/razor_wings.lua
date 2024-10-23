@@ -4,7 +4,7 @@ local my_target_selector = require("my_utility/my_target_selector");
 local menu_elements =
 {
     tree_tab       = tree_node:new(1),
-    main_boolean   = checkbox:new(true, get_hash(my_utility.plugin_label .. "razor_wings_main_bool")),
+    main_boolean   = checkbox:new(false, get_hash(my_utility.plugin_label .. "razor_wings_main_bool")),
     targeting_mode = combo_box:new(0, get_hash(my_utility.plugin_label .. "razor_wings_targeting_mode")),
 }
 

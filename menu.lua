@@ -12,8 +12,8 @@ local menu_elements =
     -- trees are the menu tabs. The parameter that we pass is the depth of the node. (0 for main menu (bright red rectangle),
     -- 1 for sub-menu of depth 1 (circular red rectangle with white background) and so on)
     settings_tree                 = tree_node:new(1),
-    normal_monster_threshold      = slider_int:new(1, 10, 1,
-        get_hash(my_utility.plugin_label .. "normal_monster_threshold")),
+    enemy_count_threshold         = slider_int:new(1, 10, 1,
+        get_hash(my_utility.plugin_label .. "enemy_count_threshold")),
     max_targeting_range           = slider_int:new(1, 16, 12, get_hash(my_utility.plugin_label .. "max_targeting_range")),
     cursor_targeting_radius       = slider_float:new(0.1, 6, 2,
         get_hash(my_utility.plugin_label .. "cursor_targeting_radius")),
@@ -42,6 +42,7 @@ local menu_elements =
         get_hash(my_utility.plugin_label .. "enemy_weight_boss")),
 
     spells_tree                   = tree_node:new(1),
+    disabled_spells_tree          = tree_node:new(1),
 }
 
 local draw_targets_description =

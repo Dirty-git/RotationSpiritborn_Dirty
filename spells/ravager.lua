@@ -2,13 +2,13 @@ local my_utility = require("my_utility/my_utility")
 
 local menu_elements =
 {
-    tree_tab         = tree_node:new(1),
-    main_boolean     = checkbox:new(true, get_hash(my_utility.plugin_label .. "ravager_base_main_bool")),
-    filter_mode      = combo_box:new(0, get_hash(my_utility.plugin_label .. "ravager_base_filter_mode")),
-    min_max_targets  = slider_int:new(0, 30, 5,
-        get_hash(my_utility.plugin_label .. "ravager_base_min_max_targets")),
-    check_buff       = checkbox:new(false, get_hash(my_utility.plugin_label .. "ravager_base_check_buff")),
-    evaluation_range = slider_int:new(1, 16, 12,
+    tree_tab              = tree_node:new(1),
+    main_boolean          = checkbox:new(false, get_hash(my_utility.plugin_label .. "ravager_base_main_bool")),
+    filter_mode           = combo_box:new(0, get_hash(my_utility.plugin_label .. "ravager_base_filter_mode")),
+    enemy_count_threshold = slider_int:new(0, 30, 5,
+        get_hash(my_utility.plugin_label .. "ravager_base_enemy_count_threshold")),
+    check_buff            = checkbox:new(false, get_hash(my_utility.plugin_label .. "ravager_base_check_buff")),
+    evaluation_range      = slider_int:new(1, 16, 12,
         get_hash(my_utility.plugin_label .. "ravager_base_evaluation_range")),
 }
 
@@ -20,8 +20,8 @@ local function menu()
             menu_elements.check_buff:render("Only recast if buff is not active", "")
             menu_elements.evaluation_range:render("Evaluation Range", my_utility.evaluation_range_description)
             menu_elements.filter_mode:render("Filter Modes", my_utility.activation_filters, "")
-            menu_elements.min_max_targets:render("Min Normal Enemies Around",
-                "Amount of normal enemies to cast the spell")
+            menu_elements.enemy_count_threshold:render("Minimum Enemy Count",
+                "       Minimum number of enemies in Evaluation Range for spell activation")
         end
 
         menu_elements.tree_tab:pop()
@@ -51,11 +51,12 @@ local function logics()
 
     local filter_mode = menu_elements.filter_mode:get()
     local evaluation_range = menu_elements.evaluation_range:get();
-    local units_count, elite_units, champion_units, boss_units = my_utility.enemy_count_in_range(evaluation_range)
+    local all_units_count, _, elite_units_count, champion_units_count, boss_units_count = my_utility
+        .enemy_count_in_range(evaluation_range)
 
-    if (filter_mode == 1 and (elite_units >= 1 or champion_units >= 1 or boss_units >= 1))
-        or (filter_mode == 2 and boss_units >= 1)
-        or (units_count >= menu_elements.min_max_targets:get())
+    if (filter_mode == 1 and (elite_units_count >= 1 or champion_units_count >= 1 or boss_units_count >= 1))
+        or (filter_mode == 2 and boss_units_count >= 1)
+        or (all_units_count >= menu_elements.enemy_count_threshold:get())
     then
         if cast_spell.self(my_utility.abilities.spell_id_ravager, 0.000) then
             local current_time = get_time_since_inject();

@@ -3,7 +3,7 @@ local my_utility = require("my_utility/my_utility")
 local menu_elements =
 {
     tree_tab       = tree_node:new(1),
-    main_boolean   = checkbox:new(true, get_hash(my_utility.plugin_label .. "crushing_hand_base_main_bool")),
+    main_boolean   = checkbox:new(false, get_hash(my_utility.plugin_label .. "crushing_hand_base_main_bool")),
     targeting_mode = combo_box:new(0, get_hash(my_utility.plugin_label .. "crushing_hand_base_targeting_mode")),
 }
 
@@ -22,8 +22,8 @@ end
 
 local crushing_hand_spell_data = spell_data:new(
     3.0,                                         -- radius
-    0.1,                                         -- range
-    0.3,                                         -- cast_delay
+    2.15,                                        -- range
+    0.01,                                        -- cast_delay
     0.3,                                         -- projectile_speed
     true,                                        -- has_collision
     my_utility.abilities.spell_id_crushing_hand, -- spell_id

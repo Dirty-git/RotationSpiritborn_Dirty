@@ -2,17 +2,18 @@ local my_utility = require("my_utility/my_utility");
 
 local menu_elements =
 {
-    tree_tab            = tree_node:new(1),
-    main_boolean        = checkbox:new(true, get_hash(my_utility.plugin_label .. "concussive_stomp_main_boolean")),
-    hp_usage_shield     = slider_float:new(0.0, 1.0, 0.30,
+    tree_tab              = tree_node:new(1),
+    main_boolean          = checkbox:new(false, get_hash(my_utility.plugin_label .. "concussive_stomp_main_boolean")),
+    hp_usage_shield       = slider_float:new(0.0, 1.0, 0.30,
         get_hash(my_utility.plugin_label .. "%_concussive_stomp_hp_usage")),
-    use_offensively     = checkbox:new(true, get_hash(my_utility.plugin_label .. "concussive_stomp_use_offensively")),
-    targeting_mode      = combo_box:new(0, get_hash(my_utility.plugin_label .. "concussive_stomp_targeting_mode")),
-    spam_with_intricacy = checkbox:new(true, get_hash(my_utility.plugin_label .. "concussive_stomp_spam_with_intricacy")),
-    filter_mode         = combo_box:new(0, get_hash(my_utility.plugin_label .. "concussive_stomp_offensive_filter")),
-    min_max_targets     = slider_int:new(0, 30, 5,
+    use_offensively       = checkbox:new(true, get_hash(my_utility.plugin_label .. "concussive_stomp_use_offensively")),
+    targeting_mode        = combo_box:new(0, get_hash(my_utility.plugin_label .. "concussive_stomp_targeting_mode")),
+    spam_with_intricacy   = checkbox:new(true,
+        get_hash(my_utility.plugin_label .. "concussive_stomp_spam_with_intricacy")),
+    filter_mode           = combo_box:new(0, get_hash(my_utility.plugin_label .. "concussive_stomp_offensive_filter")),
+    enemy_count_threshold = slider_int:new(0, 30, 5,
         get_hash(my_utility.plugin_label .. "concussive_stomp_min_enemy_count")),
-    evaluation_range    = slider_int:new(1, 6, 2,
+    evaluation_range      = slider_int:new(1, 6, 2,
         get_hash(my_utility.plugin_label .. "concussive_stomp_evaluation_range")),
 }
 
@@ -30,8 +31,8 @@ local function menu()
             if menu_elements.use_offensively:get() then
                 menu_elements.evaluation_range:render("Evaluation Range", my_utility.evaluation_range_description)
                 menu_elements.filter_mode:render("Filter Modes", my_utility.activation_filters, "")
-                menu_elements.min_max_targets:render("Min Normal Enemies Around",
-                    "Amount of normal enemies to cast the spell")
+                menu_elements.enemy_count_threshold:render("Minimum Enemy Count",
+                    "       Minimum number of enemies in Evaluation Range for spell activation")
             end
         end
 
@@ -69,11 +70,12 @@ local function logics(target)
     if use_offensively then
         local filter_mode = menu_elements.filter_mode:get()
         local evaluation_range = menu_elements.evaluation_range:get();
-        local units_count, elite_units, champion_units, boss_units = my_utility.enemy_count_in_range(evaluation_range)
+        local all_units_count, _, elite_units_count, champion_units_count, boss_units_count = my_utility
+            .enemy_count_in_range(evaluation_range)
 
-        if (filter_mode == 1 and (elite_units >= 1 or champion_units >= 1 or boss_units >= 1))
-            or (filter_mode == 2 and boss_units >= 1)
-            or (units_count >= menu_elements.min_max_targets:get())
+        if (filter_mode == 1 and (elite_units_count >= 1 or champion_units_count >= 1 or boss_units_count >= 1))
+            or (filter_mode == 2 and boss_units_count >= 1)
+            or (all_units_count >= menu_elements.enemy_count_threshold:get())
         then
             if cast_spell.target(target, concussive_stomp_spell_data, false) then
                 local current_time = get_time_since_inject();

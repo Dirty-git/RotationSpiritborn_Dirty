@@ -290,30 +290,36 @@ local function get_best_point_rec(target_position, rectangle_radius, width, curr
     return { point = target_position, hits = current_hit_list_amount, victim_list = current_hit_list }
 end
 
-local function enemy_count_in_range(evaluation_range)
-    local player_position = get_player_position();
-    local enemies = target_selector.get_near_target_list(player_position, evaluation_range);
-    local units_count = 0;
-    local elite_units = 0;
-    local champion_units = 0;
-    local boss_units = 0;
+local function enemy_count_in_range(evaluation_range, source_position)
+    -- set default source position to player position
+    local source_position = source_position or get_player_position();
+    local enemies = target_selector.get_near_target_list(source_position, evaluation_range);
+    local all_units_count = 0;
+    local normal_units_count = 0;
+    local elite_units_count = 0;
+    local champion_units_count = 0;
+    local boss_units_count = 0;
 
     for _, obj in ipairs(enemies) do
-        if not obj:is_enemy() then
+        if not obj:is_enemy() or obj:is_untargetable() or obj:is_immune() then
             -- Skip this object and continue with the next one
             goto continue
         end;
-        if obj:is_elite() then
-            elite_units = elite_units + 1;
+
+        if obj:is_boss() then
+            boss_units_count = boss_units_count + 1;
         elseif obj:is_champion() then
-            champion_units = champion_units + 1;
-        elseif obj:is_boss() then
-            boss_units = boss_units + 1;
-        end;
-        units_count = units_count + 1;
+            champion_units_count = champion_units_count + 1;
+        elseif obj:is_elite() then
+            elite_units_count = elite_units_count + 1;
+        else
+            normal_units_count = normal_units_count + 1;
+        end
+        all_units_count = all_units_count + 1;
+
         ::continue::
     end;
-    return units_count, elite_units, champion_units, boss_units
+    return all_units_count, normal_units_count, elite_units_count, champion_units_count, boss_units_count
 end
 
 local abilities = {
@@ -394,7 +400,7 @@ local function get_melee_range()
     local spell_id_ravager = abilities.spell_id_ravager
     local buff_id_ravager_dash = abilities.buff_id_ravager_dash
 
-    -- set the melee range to 8 if we have ravager active
+    -- set the melee range to 7.15 if we have ravager active
     if is_buff_active(spell_id_ravager, buff_id_ravager_dash) then
         melee_range = 7.15
     end
@@ -405,7 +411,7 @@ end
 local spell_delays = {
     -- NOTE: if a regular cast is used, it means even instant abilities will be on cooldown for the duration of the regular cast, not optimal
     instant_cast = 0.01, -- instant cast abilites should be used as soon as possible
-    regular_cast = 0.2   -- regular abilites with animation should be used with a delay
+    regular_cast = 0.1   -- regular abilites with animation should be used with a delay
 }
 
 local evaluation_range_description = "\n      Range to check for enemies around the player      \n\n"
