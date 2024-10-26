@@ -13,6 +13,22 @@ Note: This also reorders the spells in the UI. So you can check in-game if the p
 
 ## Changelog
 
+### v1.4.0
+
+- Updated buff checking logic to check for remaining buff duration
+- Added move to target logic for core damage spells when the player is not controlling their character
+- Added missing Concussive Stomp defensive usage
+- Refined range checks in all spells for better ability usage
+- Optimized spell cast logics for better performance
+- Removed predictive casting for spells that don't benefit from it
+- Added cursor angle setting for cursor targeting to improve self-play targeting (will only target enemies if the cursor is within the selected angle)
+- Reworked Active and Inactive spells UI (now auto populates based on what spells you have equipped in game)
+- Added angle display to the debug/cursor_targeting
+- Updated debug/display_targets to better reflect in-sight and out-of-sight targets
+- Updated console messages to be more descriptive
+- Centralised all spell data in spell_data.lua
+
+
 ### v1.3.0
 
 - Added mobility only option to Soar, The Hunter, Rushing Claw and Evade

@@ -1,4 +1,5 @@
-local my_utility = require("my_utility/my_utility")
+local my_utility = require("my_utility/my_utility");
+local spell_data = require("my_utility/spell_data");
 
 local menu_elements =
 {
@@ -7,7 +8,7 @@ local menu_elements =
     filter_mode           = combo_box:new(0, get_hash(my_utility.plugin_label .. "ravager_base_filter_mode")),
     enemy_count_threshold = slider_int:new(0, 30, 1,
         get_hash(my_utility.plugin_label .. "ravager_base_enemy_count_threshold")),
-    check_buff            = checkbox:new(true, get_hash(my_utility.plugin_label .. "ravager_base_check_buff")),
+    check_buff            = checkbox:new(false, get_hash(my_utility.plugin_label .. "ravager_base_check_buff")),
     evaluation_range      = slider_int:new(1, 16, 12,
         get_hash(my_utility.plugin_label .. "ravager_base_evaluation_range")),
 }
@@ -35,19 +36,19 @@ local function logics()
     local is_logic_allowed = my_utility.is_spell_allowed(
         menu_boolean,
         next_time_allowed_cast,
-        my_utility.abilities.spell_id_ravager);
+        spell_data.ravager.spell_id);
 
-    if not is_logic_allowed then
-        return false;
-    end;
+    if not is_logic_allowed then return false end;
 
+    -- Checking for buff
     local check_buff = menu_elements.check_buff:get();
-    local is_buff_active = my_utility.is_buff_active(my_utility.abilities.spell_id_ravager,
-        my_utility.abilities.buff_id_ravager_base);
-
-    if check_buff and is_buff_active then
-        return false;
-    end;
+    if check_buff then
+        local is_buff_active = my_utility.is_buff_active(spell_data.ravager.spell_id,
+            spell_data.ravager.buff_ids.base);
+        if is_buff_active then
+            return false;
+        end;
+    end
 
     local filter_mode = menu_elements.filter_mode:get()
     local evaluation_range = menu_elements.evaluation_range:get();
@@ -58,10 +59,10 @@ local function logics()
         or (filter_mode == 2 and boss_units_count >= 1)
         or (all_units_count >= menu_elements.enemy_count_threshold:get())
     then
-        if cast_spell.self(my_utility.abilities.spell_id_ravager, 0.000) then
+        if cast_spell.self(spell_data.ravager.spell_id, 0) then
             local current_time = get_time_since_inject();
-            next_time_allowed_cast = current_time + my_utility.spell_delays.instant_cast;
-            console.print("Cast Ravager - Offensive - " .. filter_mode)
+            next_time_allowed_cast = current_time + my_utility.spell_delays.regular_cast;
+            console.print("Cast Ravager - " .. my_utility.activation_filters[filter_mode + 1])
             return true;
         end
     end

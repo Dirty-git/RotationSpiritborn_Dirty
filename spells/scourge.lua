@@ -1,4 +1,5 @@
 local my_utility = require("my_utility/my_utility")
+local spell_data = require("my_utility/spell_data")
 
 local menu_elements =
 {
@@ -34,19 +35,19 @@ local function logics()
     local is_logic_allowed = my_utility.is_spell_allowed(
         menu_boolean,
         next_time_allowed_cast,
-        my_utility.abilities.spell_id_scourge);
+        spell_data.scourge.spell_id);
 
-    if not is_logic_allowed then
-        return false;
-    end;
+    if not is_logic_allowed then return false end;
 
+    -- Checking for buff
     local check_buff = menu_elements.check_buff:get();
-    local is_buff_active = my_utility.is_buff_active(my_utility.abilities.spell_id_scourge,
-        my_utility.abilities.buff_id_scourge);
-
-    if check_buff and is_buff_active then
-        return false;
-    end;
+    if check_buff then
+        local is_buff_active = my_utility.is_buff_active(spell_data.scourge.spell_id,
+            spell_data.scourge.buff_id);
+        if is_buff_active then
+            return false;
+        end;
+    end
 
     local filter_mode = menu_elements.filter_mode:get()
     local evaluation_range = menu_elements.evaluation_range:get();
@@ -57,10 +58,10 @@ local function logics()
         or (filter_mode == 2 and boss_units_count >= 1)
         or (all_units_count >= menu_elements.enemy_count_threshold:get())
     then
-        if cast_spell.self(my_utility.abilities.spell_id_scourge, 0.000) then
+        if cast_spell.self(spell_data.scourge.spell_id, 0) then
             local current_time = get_time_since_inject();
-            next_time_allowed_cast = current_time + my_utility.spell_delays.instant_cast;
-            console.print("Cast Scourge - Offensive - " .. filter_mode)
+            next_time_allowed_cast = current_time + my_utility.spell_delays.regular_cast;
+            console.print("Cast Scourge - " .. my_utility.activation_filters[filter_mode + 1])
             return true;
         end
     end

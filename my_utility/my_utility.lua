@@ -1,4 +1,5 @@
 -- local target_selector = require("my_utility/my_target_selector")
+local spell_data = require("my_utility/spell_data")
 
 local function is_auto_play_enabled()
     -- auto play fire spells without orbwalker
@@ -49,8 +50,9 @@ local function is_buff_active(spell_id, buff_id, min_stack_count)
 
     -- for every buff
     for _, buff in ipairs(local_player_buffs) do
-        -- if we have a matching spell and buff id and we have at least the minimum amount of stack
-        if buff.name_hash == spell_id and buff.type == buff_id and buff.stacks <= min_stack_count then
+        -- if we have a matching spell and buff id and
+        -- we have at least the minimum amount of stack or the buff has more than 0.2 seconds remaining
+        if buff.name_hash == spell_id and buff.type == buff_id and (buff.stacks >= min_stack_count or buff:get_remaining_time() > 0.2) then
             return true
         end
     end
@@ -322,90 +324,22 @@ local function enemy_count_in_range(evaluation_range, source_position)
     return all_units_count, normal_units_count, elite_units_count, champion_units_count, boss_units_count
 end
 
-local abilities = {
-    spell_id_evade = 337031,
-
-    spell_id_rock_splitter = 1817045,
-    buff_id_rock_splitter = 3088513863,
-
-    spell_id_withering_fist = 1834471,
-
-    spell_id_thunderspike = 1834476,
-
-    spell_id_thrash = 1834473,
-
-    spell_id_toxic_skin = 1871813,
-    buff_id_toxic_skin = 3942321290,
-
-    spell_id_the_protector = 1663208,
-    buff_id_the_protector = 2953943797,
-
-    spell_id_rushing_claw = 1871761,
-    buff_id_rushing_claw_dodge = 122693507,
-
-    spell_id_razor_wings = 1871807,
-
-    spell_id_stinger = 1836008,
-
-    spell_id_rake = 1640931,
-
-    spell_id_quill_volley = 1519048,
-
-    spell_id_crushing_hand = 1519050,
-
-    spell_id_payback = 1871823,
-
-    spell_id_concussive_stomp = 1871825,
-
-    spell_id_touch_of_death = 1871809,
-    buff_id_touch_of_death_swarm = 4118027893, -- swarm counter
-
-    spell_id_the_devourer = 1663210,
-    buff_id_the_devourer = 2953943797,
-
-    spell_id_the_seeker = 1663204,
-    buff_id_the_seeker = 2953943797,
-
-    spell_id_counterattack = 1871819,
-    buff_id_counterattack = 897199838,
-
-    spell_id_vortex = 1489641,
-
-    spell_id_scourge = 1871801,
-    buff_id_scourge = 3725439903,
-
-    spell_id_soar = 1871821,
-    buff_id_soar_crit = 4185123075,
-    buff_id_soar_vulnerable = 995779668,
-    buff_id_soar_unstoppable = 2139628237,
-
-    spell_id_the_hunter = 1663206,
-    buff_id_the_hunter = 2953943797,
-
-    spell_id_ravager = 1862773,
-    buff_id_ravager_base = 844134919,
-    buff_id_ravager_dash = 3232499915,
-
-    spell_id_armored_hide = 1871764,
-    buff_id_armored_hide = 3135423973,
-
-    spell_id_intricacy = 1648395,
-    buff_id_intricacy = 3974995119,
-
-    spell_id_supremacy = 1648393 -- Spiritborn_Talent_Ultimate_5
-}
-
 local function get_melee_range()
-    local melee_range = 2.15
-    local spell_id_ravager = abilities.spell_id_ravager
-    local buff_id_ravager_dash = abilities.buff_id_ravager_dash
+    local melee_range = 2
 
-    -- set the melee range to 7.15 if we have ravager active
-    if is_buff_active(spell_id_ravager, buff_id_ravager_dash) then
-        melee_range = 7.15
+    if is_buff_active(spell_data.ravager.spell_id, spell_data.ravager.buff_ids.dash) then
+        melee_range = 7
     end
 
     return melee_range
+end
+
+local function is_in_range(target, range)
+    local target_position = target:get_position()
+    local player_position = get_player_position()
+    local target_distance_sqr = player_position:squared_dist_to_ignore_z(target_position)
+    local range_sqr = (range * range)
+    return target_distance_sqr < range_sqr
 end
 
 local spell_delays = {
@@ -449,7 +383,6 @@ return
 {
     spell_delays = spell_delays,
     activation_filters = activation_filters,
-    abilities = abilities,
     targeting_mode_description = targeting_mode_description,
     targeting_modes = targeting_modes,
     evaluation_range_description = evaluation_range_description,
@@ -470,4 +403,5 @@ return
     get_best_point_rec = get_best_point_rec,
     enemy_count_in_range = enemy_count_in_range,
     get_melee_range = get_melee_range,
+    is_in_range = is_in_range
 }

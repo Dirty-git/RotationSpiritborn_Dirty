@@ -15,8 +15,10 @@ local menu_elements =
     enemy_count_threshold         = slider_int:new(1, 10, 1,
         get_hash(my_utility.plugin_label .. "enemy_count_threshold")),
     max_targeting_range           = slider_int:new(1, 16, 12, get_hash(my_utility.plugin_label .. "max_targeting_range")),
-    cursor_targeting_radius       = slider_float:new(0.1, 6, 2,
+    cursor_targeting_radius       = slider_float:new(0.1, 6, 3,
         get_hash(my_utility.plugin_label .. "cursor_targeting_radius")),
+    cursor_targeting_angle        = slider_int:new(20, 50, 30,
+        get_hash(my_utility.plugin_label .. "cursor_targeting_angle")),
     best_target_evaluation_radius = slider_float:new(0.1, 6, 3,
         get_hash(my_utility.plugin_label .. "best_target_evaluation_radius")),
 
@@ -50,10 +52,10 @@ local draw_targets_description =
     "     Ranged Target - RED circle with line     \n" ..
     "     Melee Target - GREEN circle with line     \n" ..
     "     Closest Target - CYAN circle with line     \n\n" ..
-    "     Targets out of sight:\n" ..
-    "     Ranged Target - faded RED octagon     \n" ..
-    "     Melee Target - faded GREEN octagon     \n" ..
-    "     Closest Target - faded CYAN octagon     \n\n" ..
+    "     Targets out of sight (only if they are not the same as targets in sight):\n" ..
+    "     Ranged Target - faded RED circle     \n" ..
+    "     Melee Target - faded GREEN circle     \n" ..
+    "     Closest Target - faded CYAN circle     \n\n" ..
     "     Best Target Evaluation Radius:\n" ..
     "     faded WHITE circle       \n\n"
 

@@ -9,8 +9,13 @@ if not is_spiritborn then
     return
 end;
 
+-- orbwalker settings
+orbwalker.set_block_movement(true);
+orbwalker.set_clear_toggle(true);
+
 local my_target_selector = require("my_utility/my_target_selector");
 local my_utility = require("my_utility/my_utility");
+local spell_data = require("my_utility/spell_data");
 local spell_priority = require("spell_priority");
 local menu = require("menu")
 
@@ -44,7 +49,7 @@ local spells =
 }
 
 on_render_menu(function()
-    if not menu.menu_elements.main_tree:push("Spiritborn [Dirty] v1.3.0") then
+    if not menu.menu_elements.main_tree:push("Spiritborn [Dirty] v1.4.0") then
         return;
     end;
 
@@ -65,6 +70,8 @@ on_render_menu(function()
             "       Maximum range for targeting       ")
         menu.menu_elements.cursor_targeting_radius:render("Cursor Targeting Radius",
             "       Area size for selecting target around the cursor       ", 1)
+        menu.menu_elements.cursor_targeting_angle:render("Cursor Targeting Angle",
+            "       Maximum angle between cursor and target to cast targetted spells       ")
         menu.menu_elements.best_target_evaluation_radius:render("Enemy Evaluation Radius",
             "       Area size around an enemy to evaluate if it's the best target       \n" ..
             "       If you use huge aoe spells, you should increase this value       \n" ..
@@ -104,21 +111,39 @@ on_render_menu(function()
         menu.menu_elements.settings_tree:pop()
     end
 
-    if menu.menu_elements.spells_tree:push("Activated Spells") then
+    local equipped_spells = get_equipped_spell_ids()
+    table.insert(equipped_spells, spell_data.evade.spell_id) -- add evade to the list
+
+    -- Create a lookup table for equipped spells
+    local equipped_lookup = {}
+    for _, spell_id in ipairs(equipped_spells) do
+        -- Check each spell in spell_data to find matching spell_id
+        for spell_name, data in pairs(spell_data) do
+            if data.spell_id == spell_id then
+                equipped_lookup[spell_name] = true
+                break
+            end
+        end
+    end
+
+    if menu.menu_elements.spells_tree:push("Active Spells") then
+        -- Display spells in priority order, but only if they're equipped
         for _, spell_name in ipairs(spell_priority) do
-            local spell = spells[spell_name]
-            if spell and spell.menu_elements.main_boolean:get() then
-                spell.menu()
+            if equipped_lookup[spell_name] then
+                local spell = spells[spell_name]
+                if spell then
+                    spell.menu()
+                end
             end
         end
         menu.menu_elements.spells_tree:pop()
     end
 
-    if menu.menu_elements.disabled_spells_tree:push("Disabled Spells") then
+    if menu.menu_elements.disabled_spells_tree:push("Inactive Spells") then
         for _, spell_name in ipairs(spell_priority) do
             local spell = spells[spell_name]
-            if spell and not spell.menu_elements.main_boolean:get() then
-                spell.menu_elements.main_boolean:render("Enable " .. spell_name, "")
+            if spell and (not equipped_lookup[spell_name] or not spell.menu_elements.main_boolean:get()) then
+                spell.menu()
             end
         end
         menu.menu_elements.disabled_spells_tree:pop()
@@ -136,7 +161,7 @@ local closest_target = nil
 local closest_target_visible = nil
 local best_cursor_target = nil
 local closest_cursor_target = nil
-
+local closest_cursor_target_angle = 0
 -- Targetting scores
 local ranged_max_score = 0
 local ranged_max_score_visible = 0
@@ -168,6 +193,7 @@ local function evaluate_targets(target_list, melee_range)
     local best_melee_target = nil
     local best_cursor_target = nil
     local closest_cursor_target = nil
+    local closest_cursor_target_angle = 0
 
     local ranged_max_score = 0
     local melee_max_score = 0
@@ -179,7 +205,7 @@ local function evaluate_targets(target_list, melee_range)
     local cursor_targeting_radius = menu.menu_elements.cursor_targeting_radius:get()
     local cursor_targeting_radius_sqr = cursor_targeting_radius * cursor_targeting_radius
     local best_target_evaluation_radius = menu.menu_elements.best_target_evaluation_radius:get()
-
+    local cursor_targeting_angle = menu.menu_elements.cursor_targeting_angle:get()
     local enemy_count_threshold = menu.menu_elements.enemy_count_threshold:get()
     local closest_cursor_distance_sqr = math.huge
 
@@ -218,16 +244,23 @@ local function evaluate_targets(target_list, melee_range)
             best_melee_target = unit
         end
 
-        -- in cursor radius
+        -- in cursor angle
         if cursor_distance_sqr <= cursor_targeting_radius_sqr then
-            if total_score > cursor_max_score then
-                cursor_max_score = total_score
-                best_cursor_target = unit
-            end
+            local angle_to_cursor = unit_position:get_angle(cursor_position, player_position)
+            if angle_to_cursor <= cursor_targeting_angle then
+                -- in cursor radius
+                if cursor_distance_sqr <= cursor_targeting_radius_sqr then
+                    if total_score > cursor_max_score then
+                        cursor_max_score = total_score
+                        best_cursor_target = unit
+                    end
 
-            if cursor_distance_sqr < closest_cursor_distance_sqr then
-                closest_cursor_distance_sqr = cursor_distance_sqr
-                closest_cursor_target = unit
+                    if cursor_distance_sqr < closest_cursor_distance_sqr then
+                        closest_cursor_distance_sqr = cursor_distance_sqr
+                        closest_cursor_target = unit
+                        closest_cursor_target_angle = angle_to_cursor
+                    end
+                end
             end
         end
 
@@ -235,7 +268,7 @@ local function evaluate_targets(target_list, melee_range)
     end
 
     return best_ranged_target, best_melee_target, best_cursor_target, closest_cursor_target, ranged_max_score,
-        melee_max_score, cursor_max_score
+        melee_max_score, cursor_max_score, closest_cursor_target_angle
 end
 
 local function use_ability(spell_name, delay_after_cast)
@@ -314,6 +347,7 @@ on_update(function()
         closest_target_visible = nil
         best_cursor_target = nil
         closest_cursor_target = nil
+        closest_cursor_target_angle = 0
         local melee_range = my_utility.get_melee_range()
 
         -- Update enemy weights, use custom weights if enabled
@@ -332,7 +366,7 @@ on_update(function()
         -- Check all targets within max range
         if target_selector_data_all and target_selector_data_all.is_valid then
             best_ranged_target, best_melee_target, best_cursor_target, closest_cursor_target, ranged_max_score,
-            melee_max_score, cursor_max_score = evaluate_targets(
+            melee_max_score, cursor_max_score, closest_cursor_target_angle = evaluate_targets(
                 target_selector_data_all.list,
                 melee_range)
             closest_target = target_selector_data_all.closest_unit
@@ -356,7 +390,7 @@ on_update(function()
     for _, spell_name in ipairs(spell_priority) do
         local spell = spells[spell_name]
         if spell then
-            if use_ability(spell_name, my_utility.spell_delays.instant_cast) then
+            if use_ability(spell_name, my_utility.spell_delays.regular_cast) then
                 return
             end
         end
@@ -447,7 +481,7 @@ on_render(function()
         if best_ranged_target_visible ~= best_ranged_target and best_ranged_target and best_ranged_target:is_enemy() then
             local best_ranged_target_position = best_ranged_target:get_position();
             local best_ranged_target_position_2d = graphics.w2s(best_ranged_target_position);
-            graphics.circle_3d(best_ranged_target_position, 0.80, color_red_pale(alpha), 2.0, 8);
+            graphics.circle_3d(best_ranged_target_position, 0.80, color_red_pale(alpha), 2.0);
             graphics.circle_3d(best_ranged_target_position, best_target_evaluation_radius,
                 color_white(target_evaluation_radius_alpha), 1);
             local text_position = vec2:new(best_ranged_target_position_2d.x,
@@ -466,7 +500,7 @@ on_render(function()
                 color_white(target_evaluation_radius_alpha), 1);
             local text_position = vec2:new(best_melee_target_visible_position_2d.x,
                 best_melee_target_visible_position_2d.y)
-            graphics.text_2d("MELEE_VISIBLE" .. melee_max_score_visible, text_position, font_size,
+            graphics.text_2d("MELEE_VISIBLE - Score:" .. melee_max_score_visible, text_position, font_size,
                 color_green(visible_text))
         end
 
@@ -474,7 +508,7 @@ on_render(function()
         if best_melee_target_visible ~= best_melee_target and best_melee_target and best_melee_target:is_enemy() then
             local best_melee_target_position = best_melee_target:get_position();
             local best_melee_target_position_2d = graphics.w2s(best_melee_target_position);
-            graphics.circle_3d(best_melee_target_position, 0.70, color_green_pale(alpha), 2.0, 8);
+            graphics.circle_3d(best_melee_target_position, 0.70, color_green_pale(alpha), 2.0);
             graphics.circle_3d(best_melee_target_position, best_target_evaluation_radius,
                 color_white(target_evaluation_radius_alpha), 1);
             local text_position = vec2:new(best_melee_target_position_2d.x, best_melee_target_position_2d.y)
@@ -498,7 +532,7 @@ on_render(function()
         if closest_target_visible ~= closest_target and closest_target and closest_target:is_enemy() then
             local closest_target_position = closest_target:get_position();
             local closest_target_position_2d = graphics.w2s(closest_target_position);
-            graphics.circle_3d(closest_target_position, 0.60, color_cyan_pale(alpha), 2.0, 8);
+            graphics.circle_3d(closest_target_position, 0.60, color_cyan_pale(alpha), 2.0);
             graphics.circle_3d(closest_target_position, best_target_evaluation_radius,
                 color_white(target_evaluation_radius_alpha), 1);
             local text_position = vec2:new(closest_target_position_2d.x, closest_target_position_2d.y + y_offset)
@@ -523,10 +557,11 @@ on_render(function()
             graphics.circle_3d(closest_cursor_target_position, 0.40, color_green_pastel(255), 2.0, 5);
             local text_position = vec2:new(closest_cursor_target_position_2d.x,
                 closest_cursor_target_position_2d.y + y_offset)
-            graphics.text_2d("CLOSEST_CURSOR_TARGET", text_position, font_size,
+            graphics.text_2d("CLOSEST_CURSOR_TARGET - Angle:" .. string.format("%.1f", closest_cursor_target_angle),
+                text_position, font_size,
                 color_green_pastel(255))
         end
     end
 end);
 
-console.print("Lua Plugin - Spiritborn Dirty - Version 1.3.0");
+console.print("Lua Plugin - Spiritborn Dirty - Version 1.4.0");

@@ -1,4 +1,5 @@
 local my_utility = require("my_utility/my_utility")
+local spell_data = require("my_utility/spell_data")
 
 local menu_elements =
 {
@@ -20,35 +21,33 @@ local function menu()
     end
 end
 
-local crushing_hand_spell_data = spell_data:new(
-    3.0,                                         -- radius
-    2.15,                                        -- range
-    0.01,                                        -- cast_delay
-    0.3,                                         -- projectile_speed
-    true,                                        -- has_collision
-    my_utility.abilities.spell_id_crushing_hand, -- spell_id
-    spell_geometry.rectangular,                  -- geometry_type
-    targeting_type.targeted                      --targeting_type
-)
-
 local next_time_allowed_cast = 0.0;
 
 local function logics(target)
+    if not target then return false end;
     local menu_boolean = menu_elements.main_boolean:get();
     local is_logic_allowed = my_utility.is_spell_allowed(
         menu_boolean,
         next_time_allowed_cast,
-        my_utility.abilities.spell_id_crushing_hand);
+        spell_data.crushing_hand.spell_id);
 
-    if not is_logic_allowed or not target then
+    if not is_logic_allowed then return false end;
+
+    -- Checking for target distance
+    local in_range = my_utility.is_in_range(target, my_utility.get_melee_range())
+    if not in_range then
+        -- move to target
+        local target_position = target:get_position()
+        pathfinder.request_move(target_position)
         return false;
-    end;
+    end
 
-    if cast_spell.target(target, crushing_hand_spell_data, false) then
+    if cast_spell.target(target, spell_data.crushing_hand.spell_id, 0, false) then
         local current_time = get_time_since_inject();
         next_time_allowed_cast = current_time + my_utility.spell_delays.regular_cast;
 
-        console.print("Cast Crushing Hand");
+        console.print("Cast Crushing Hand - Target: " ..
+            my_utility.targeting_modes[menu_elements.targeting_mode:get() + 1]);
         return true;
     end;
 

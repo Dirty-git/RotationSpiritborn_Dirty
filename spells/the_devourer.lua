@@ -1,4 +1,5 @@
 local my_utility = require("my_utility/my_utility")
+local spell_data = require("my_utility/spell_data")
 
 local menu_elements =
 {
@@ -22,26 +23,26 @@ end
 local next_time_allowed_cast = 0.0
 
 local function logics(target)
+    if not target then return false end;
     local menu_boolean = menu_elements.main_boolean:get();
     local is_logic_allowed = my_utility.is_spell_allowed(
         menu_boolean,
         next_time_allowed_cast,
-        my_utility.abilities.spell_id_the_devourer);
+        spell_data.the_devourer.spell_id);
 
-    if not is_logic_allowed or not target then
-        return false;
-    end;
+    if not is_logic_allowed then return false end;
 
     -- if we have the buff already active then skip
-    if my_utility.is_buff_active(my_utility.abilities.spell_id_the_devourer, my_utility.abilities.buff_id_the_devourer) then
+    if my_utility.is_buff_active(spell_data.the_devourer.spell_id, spell_data.the_devourer.buff_id) then
         return false;
     end;
 
     local target_position = target:get_position()
-    if cast_spell.position(my_utility.abilities.spell_id_the_devourer, target_position, 0.40) then
+    if cast_spell.position(spell_data.the_devourer.spell_id, target_position, 0.40) then
         local current_time = get_time_since_inject();
         next_time_allowed_cast = current_time + my_utility.spell_delays.regular_cast;
-        console.print("Cast The Devourer, Target: " .. target:get_skin_name());
+        console.print("Cast The Devourer, Target: " .. my_utility.targeting_modes
+            [menu_elements.targeting_mode:get() + 1]);
         return true;
     end
 

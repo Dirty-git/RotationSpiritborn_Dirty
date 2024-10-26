@@ -1,4 +1,5 @@
 local my_utility = require("my_utility/my_utility")
+local spell_data = require("my_utility/spell_data")
 
 local max_spell_range = 16.0
 local menu_elements =
@@ -30,38 +31,26 @@ local function menu()
     end
 end
 
-local spell_data_soar = spell_data:new(
-    1.5,                                -- radius
-    max_spell_range,                    -- range
-    1.0,                                -- cast_delay
-    0.7,                                -- projectile_speed
-    false,                              -- has_collision
-    my_utility.abilities.spell_id_soar, -- spell_id
-    spell_geometry.circular,            -- geometry_type
-    targeting_type.skillshot            --targeting_type
-)
-
 local next_time_allowed_cast = 0.0;
 
 local function logics(target)
+    if not target then return false end;
     local menu_boolean = menu_elements.main_boolean:get();
     local is_logic_allowed = my_utility.is_spell_allowed(
         menu_boolean,
         next_time_allowed_cast,
-        my_utility.abilities.spell_id_soar);
+        spell_data.soar.spell_id);
 
-    if not is_logic_allowed or not target then
-        return false;
-    end;
+    if not is_logic_allowed then return false end;
 
     local check_buff = menu_elements.check_buff:get();
     if check_buff then
-        local is_buff_active = my_utility.is_buff_active(my_utility.abilities.spell_id_soar,
-                my_utility.abilities.buff_id_soar_crit) or
-            my_utility.is_buff_active(my_utility.abilities.spell_id_soar,
-                my_utility.abilities.buff_id_soar_vulnerable) or
-            my_utility.is_buff_active(my_utility.abilities.spell_id_soar,
-                my_utility.abilities.buff_id_soar_unstoppable)
+        local is_buff_active = my_utility.is_buff_active(spell_data.soar.spell_id,
+                spell_data.soar.buff_ids.crit) or
+            my_utility.is_buff_active(spell_data.soar.spell_id,
+                spell_data.soar.buff_ids.vulnerable) or
+            my_utility.is_buff_active(spell_data.soar.spell_id,
+                spell_data.soar.buff_ids.unstoppable)
         if is_buff_active then
             return false;
         end
@@ -69,18 +58,16 @@ local function logics(target)
 
     local mobility_only = menu_elements.mobility_only:get();
     if mobility_only then
-        local target_position = target:get_position()
-        local player_position = get_player_position()
-        local target_distance = target_position:dist_to(player_position);
-        if target_distance <= menu_elements.min_target_range:get() or target_distance >= max_spell_range then
-            return false;
+        if not my_utility.is_in_range(target, max_spell_range) or my_utility.is_in_range(target, menu_elements.min_target_range:get()) then
+            return false
         end
     end
 
-    if cast_spell.target(target, spell_data_soar, false) then
+    if cast_spell.target(target, spell_data.soar.spell_id, 0, false) then
         local current_time = get_time_since_inject();
         next_time_allowed_cast = current_time + my_utility.spell_delays.regular_cast;
-        console.print("Cast Soar, Target: " .. target:get_skin_name() .. ", Check Buff: " ..
+        console.print("Cast Soar - Target: " ..
+            my_utility.targeting_modes[menu_elements.targeting_mode:get() + 1] .. ", Check Buff: " ..
             tostring(check_buff) .. ", Mobility Only: " .. tostring(mobility_only));
         return true;
     end;

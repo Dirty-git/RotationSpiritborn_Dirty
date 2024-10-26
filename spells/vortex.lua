@@ -1,4 +1,5 @@
 local my_utility = require("my_utility/my_utility")
+local spell_data = require("my_utility/spell_data")
 
 local menu_elements =
 {
@@ -32,11 +33,10 @@ local function logics()
     local is_logic_allowed = my_utility.is_spell_allowed(
         menu_boolean,
         next_time_allowed_cast,
-        my_utility.abilities.spell_id_vortex);
+        spell_data.vortex.spell_id);
 
-    if not is_logic_allowed then
-        return false;
-    end;
+    if not is_logic_allowed then return false end;
+
     local filter_mode = menu_elements.filter_mode:get()
     local evaluation_range = menu_elements.evaluation_range:get();
     local all_units_count, _, elite_units_count, champion_units_count, boss_units_count = my_utility
@@ -46,9 +46,9 @@ local function logics()
         or (filter_mode == 2 and boss_units_count >= 1)
         or (all_units_count >= menu_elements.enemy_count_threshold:get())
     then
-        if cast_spell.self(my_utility.abilities.spell_id_vortex, 0.0) then
+        if cast_spell.self(spell_data.vortex.spell_id, 0.0) then
             local current_time = get_time_since_inject();
-            next_time_allowed_cast = current_time + my_utility.spell_delays.instant_cast;
+            next_time_allowed_cast = current_time + my_utility.spell_delays.regular_cast;
             console.print("Cast Vortex");
             return true;
         end;
