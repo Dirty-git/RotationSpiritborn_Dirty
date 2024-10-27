@@ -348,6 +348,14 @@ local spell_delays = {
     regular_cast = 0.1   -- regular abilites with animation should be used with a delay
 }
 
+-- skin name patterns for infernal horde objectives
+local horde_objectives = {
+    "BSK_HellSeeker",
+    "S05_coredemon",
+    "S05_fallen",
+    "BSK_Structure_BonusAether"
+}
+
 local evaluation_range_description = "\n      Range to check for enemies around the player      \n\n"
 
 local targeting_modes = {
@@ -403,5 +411,6 @@ return
     get_best_point_rec = get_best_point_rec,
     enemy_count_in_range = enemy_count_in_range,
     get_melee_range = get_melee_range,
-    is_in_range = is_in_range
+    is_in_range = is_in_range,
+    horde_objectives = horde_objectives
 }

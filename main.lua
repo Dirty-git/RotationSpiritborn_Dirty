@@ -49,7 +49,7 @@ local spells =
 }
 
 on_render_menu(function()
-    if not menu.menu_elements.main_tree:push("Spiritborn [Dirty] v1.4.0") then
+    if not menu.menu_elements.main_tree:push("Spiritborn [Dirty] v1.5.0") then
         return;
     end;
 
@@ -210,6 +210,8 @@ local function evaluate_targets(target_list, melee_range)
     local closest_cursor_distance_sqr = math.huge
 
     for _, unit in ipairs(target_list) do
+        local unit_health = unit:get_current_health()
+        local unit_name = unit:get_skin_name()
         local unit_position = unit:get_position()
         local distance_sqr = unit_position:squared_dist_to_ignore_z(player_position)
         local cursor_distance_sqr = unit_position:squared_dist_to_ignore_z(cursor_position)
@@ -230,6 +232,14 @@ local function evaluate_targets(target_list, melee_range)
             total_score = total_score + champion_value * champion_units_count
         elseif elite_units_count > 0 then
             total_score = total_score + elite_value * elite_units_count
+        end
+
+        -- Check if unit is an infernal horde objective
+        for _, objective_name in ipairs(my_utility.horde_objectives) do
+            if unit_name:match(objective_name) and unit_health > 1 then
+                total_score = total_score + 1000
+                break
+            end
         end
 
         -- in max range
@@ -564,4 +574,4 @@ on_render(function()
     end
 end);
 
-console.print("Lua Plugin - Spiritborn Dirty - Version 1.4.0");
+console.print("Lua Plugin - Spiritborn Dirty - Version 1.5.0");
