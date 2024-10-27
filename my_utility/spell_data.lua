@@ -1,4 +1,13 @@
 local spell_data = {
+    enemies = {
+        damage_resistance = {
+            spell_id = 1094180,
+            buff_ids = {
+                provider = 2771801864,
+                receiver = 2182649012
+            }
+        }
+    },
     evade = {
         spell_id = 337031
     },

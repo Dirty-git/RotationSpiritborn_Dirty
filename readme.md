@@ -12,13 +12,14 @@ The priority of spells can be adjusted by changing the sequence in spell_priorit
 Note: This also reorders the spells in the UI. So you can check in-game if the priority is correct. If a spell is not visible, make sure the the name is correctly spelled and in the list.
 
 ## Changelog
+### v1.5.1
+- Included damage resistance aura in the target scoring system
+- Added enemy weight for damage resistance aura in the custom enemy weights section
 
 ### v1.5.0
-
 - Added detection for infernal horde objectives (credit to Letrico)
 
 ### v1.4.0
-
 - Updated buff checking logic to check for remaining buff duration
 - Added move to target logic for core damage spells when the player is not controlling their character
 - Added missing Concussive Stomp defensive usage
@@ -32,9 +33,7 @@ Note: This also reorders the spells in the UI. So you can check in-game if the p
 - Updated console messages to be more descriptive
 - Centralised all spell data in spell_data.lua
 
-
 ### v1.3.0
-
 - Added mobility only option to Soar, The Hunter, Rushing Claw and Evade
 - Increased general spell casting frequency
 - Updated default spell priority (suits most builds better)
@@ -42,7 +41,6 @@ Note: This also reorders the spells in the UI. So you can check in-game if the p
 - Updated spell data for mobility only options
 
 ### v1.2.0
-
 - Added customizable spell priority
 - Increased ability usage speed for better performance
 - Upgraded targeting system with better score calculation
@@ -50,17 +48,14 @@ Note: This also reorders the spells in the UI. So you can check in-game if the p
 - Added score display to the debug/display_targets
 
 ### v1.1.1
-
 - GUI label fixes (all settings should now save correctly)
 
 ### v1.1.0
-
 - Added custom enemy weights
 - Default enemy weights adjusted (favours elites and bosses for targeting)
 - Added readme and changelog
 
 ### v1.0.0
-
 - Initial release
 
 ## Settings

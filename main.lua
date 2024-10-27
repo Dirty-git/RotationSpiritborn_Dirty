@@ -49,7 +49,7 @@ local spells =
 }
 
 on_render_menu(function()
-    if not menu.menu_elements.main_tree:push("Spiritborn [Dirty] v1.5.0") then
+    if not menu.menu_elements.main_tree:push("Spiritborn [Dirty] v1.5.1") then
         return;
     end;
 
@@ -89,6 +89,8 @@ on_render_menu(function()
                     "Weighing score for champion enemies - default is 15")
                 menu.menu_elements.enemy_weight_boss:render("Boss Enemy Weight",
                     "Weighing score for boss enemies - default is 50")
+                menu.menu_elements.enemy_weight_damage_resistance:render("Damage Resistance Aura Enemy Weight",
+                    "Weighing score for enemies with damage resistance aura - default is 25")
                 menu.menu_elements.custom_enemy_weights_tree:pop()
             end
         end
@@ -185,6 +187,7 @@ local normal_monster_value = 2
 local elite_value = 10
 local champion_value = 15
 local boss_value = 50
+local damage_resistance_value = 25
 
 local target_selector_data_all = nil
 
@@ -215,6 +218,7 @@ local function evaluate_targets(target_list, melee_range)
         local unit_position = unit:get_position()
         local distance_sqr = unit_position:squared_dist_to_ignore_z(player_position)
         local cursor_distance_sqr = unit_position:squared_dist_to_ignore_z(cursor_position)
+        local buffs = unit:get_buffs()
 
         -- get enemy count in range of enemy unit
         local all_units_count, normal_units_count, elite_units_count, champion_units_count, boss_units_count = my_utility
@@ -232,6 +236,20 @@ local function evaluate_targets(target_list, melee_range)
             total_score = total_score + champion_value * champion_units_count
         elseif elite_units_count > 0 then
             total_score = total_score + elite_value * elite_units_count
+        end
+
+        -- Check if unit has damage resistance buff
+        for _, buff in ipairs(buffs) do
+            if buff.name_hash == spell_data.enemies.damage_resistance.spell_id then
+                -- if the enemy is the provider of the damage resistance aura
+                if buff.type == spell_data.enemies.damage_resistance.buff_ids.provider then
+                    total_score = total_score + damage_resistance_value
+                    break
+                else -- otherwise the enemy is the receiver of the damage resistance aura
+                    total_score = total_score - damage_resistance_value
+                    break
+                end
+            end
         end
 
         -- Check if unit is an infernal horde objective
@@ -366,11 +384,13 @@ on_update(function()
             elite_value = menu.menu_elements.enemy_weight_elite:get()
             champion_value = menu.menu_elements.enemy_weight_champion:get()
             boss_value = menu.menu_elements.enemy_weight_boss:get()
+            damage_resistance_value = menu.menu_elements.enemy_weight_damage_resistance:get()
         else
             normal_monster_value = 2
             elite_value = 10
             champion_value = 15
             boss_value = 50
+            damage_resistance_value = 25
         end
 
         -- Check all targets within max range
@@ -574,4 +594,4 @@ on_render(function()
     end
 end);
 
-console.print("Lua Plugin - Spiritborn Dirty - Version 1.5.0");
+console.print("Lua Plugin - Spiritborn Dirty - Version 1.5.1")
