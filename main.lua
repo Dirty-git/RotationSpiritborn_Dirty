@@ -49,7 +49,7 @@ local spells =
 }
 
 on_render_menu(function()
-    if not menu.menu_elements.main_tree:push("Spiritborn [Dirty] v1.5.1") then
+    if not menu.menu_elements.main_tree:push("Spiritborn [Dirty] v1.5.2") then
         return;
     end;
 
@@ -128,7 +128,7 @@ on_render_menu(function()
         end
     end
 
-    if menu.menu_elements.spells_tree:push("Active Spells") then
+    if menu.menu_elements.spells_tree:push("Equipped Spells") then
         -- Display spells in priority order, but only if they're equipped
         for _, spell_name in ipairs(spell_priority) do
             if equipped_lookup[spell_name] then
@@ -594,4 +594,4 @@ on_render(function()
     end
 end);
 
-console.print("Lua Plugin - Spiritborn Dirty - Version 1.5.1")
+console.print("Lua Plugin - Spiritborn Dirty - Version 1.5.2")

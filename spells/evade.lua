@@ -13,7 +13,7 @@ local menu_elements =
 }
 
 local function menu()
-    if menu_elements.tree_tab:push("Evade") then
+    if menu_elements.tree_tab:push("Evade - only for evade build") then
         menu_elements.main_boolean:render("Enable Spell", "")
 
         if menu_elements.main_boolean:get() then

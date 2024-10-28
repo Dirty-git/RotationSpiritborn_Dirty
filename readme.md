@@ -12,6 +12,10 @@ The priority of spells can be adjusted by changing the sequence in spell_priorit
 Note: This also reorders the spells in the UI. So you can check in-game if the priority is correct. If a spell is not visible, make sure the the name is correctly spelled and in the list.
 
 ## Changelog
+### v1.5.2
+- Added missing basic spells
+- GUI label updates
+
 ### v1.5.1
 - Included damage resistance aura in the target scoring system
 - Added enemy weight for damage resistance aura in the custom enemy weights section
