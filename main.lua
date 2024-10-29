@@ -49,7 +49,7 @@ local spells =
 }
 
 on_render_menu(function()
-    if not menu.menu_elements.main_tree:push("Spiritborn [Dirty] v1.5.2") then
+    if not menu.menu_elements.main_tree:push("Spiritborn [Dirty] v1.5.3") then
         return;
     end;
 
@@ -594,4 +594,4 @@ on_render(function()
     end
 end);
 
-console.print("Lua Plugin - Spiritborn Dirty - Version 1.5.2")
+console.print("Lua Plugin - Spiritborn Dirty - Version 1.5.3")

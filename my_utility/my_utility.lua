@@ -351,9 +351,14 @@ local spell_delays = {
 -- skin name patterns for infernal horde objectives
 local horde_objectives = {
     "BSK_HellSeeker",
+    "MarkerLocation_BSK_Occupied",
     "S05_coredemon",
     "S05_fallen",
-    "BSK_Structure_BonusAether"
+    "BSK_Structure_BonusAether",
+    "BSK_Miniboss",
+    "BSK_elias_boss",
+    "BSK_cannibal_brute_boss",
+    "BSK_skeleton_boss"
 }
 
 local evaluation_range_description = "\n      Range to check for enemies around the player      \n\n"
