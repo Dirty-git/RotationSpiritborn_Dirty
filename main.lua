@@ -49,7 +49,7 @@ local spells =
 }
 
 on_render_menu(function()
-    if not menu.menu_elements.main_tree:push("Spiritborn [Dirty] v1.5.3") then
+    if not menu.menu_elements.main_tree:push("Spiritborn [Dirty] v1.5.4") then
         return;
     end;
 
@@ -341,6 +341,11 @@ on_update(function()
         return;
     end
 
+    -- Out of combat evade
+    if spells.evade and spells.evade.menu_elements.use_out_of_combat:get() then
+        spells.evade.out_of_combat()
+    end
+
     targeting_refresh_interval = menu.menu_elements.targeting_refresh_interval:get()
     -- Only update targets if targeting_refresh_interval has expired
     if current_time >= next_target_update_time then
@@ -594,4 +599,4 @@ on_render(function()
     end
 end);
 
-console.print("Lua Plugin - Spiritborn Dirty - Version 1.5.3")
+console.print("Lua Plugin - Spiritborn Dirty - Version 1.5.4")

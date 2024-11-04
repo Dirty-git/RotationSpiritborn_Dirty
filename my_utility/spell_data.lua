@@ -104,6 +104,10 @@ local spell_data = {
     supremacy = {
         spell_id = 1648393
     },
+    in_combat_area = {
+        spell_id = 1271767,
+        buff_id = 844134919
+    },
 
     -- enemies
     enemies = {

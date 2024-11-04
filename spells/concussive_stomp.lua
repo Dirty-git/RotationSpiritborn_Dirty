@@ -88,7 +88,7 @@ local function logics(target)
             or (filter_mode == 2 and boss_units_count >= 1)
             or (all_units_count >= menu_elements.enemy_count_threshold:get())
         then
-            if cast_spell.target(target, spell_data.concussive_stomp.spell_id, 0) then
+            if cast_spell.target(target, spell_data.concussive_stomp.spell_id, 0, false) then
                 local current_time = get_time_since_inject();
                 next_time_allowed_cast = current_time + my_utility.spell_delays.regular_cast;
                 console.print("Cast Concussive Stomp - Offensive - " .. my_utility.activation_filters[filter_mode + 1])

@@ -12,6 +12,11 @@ The priority of spells can be adjusted by changing the sequence in spell_priorit
 Note: This also reorders the spells in the UI. So you can check in-game if the priority is correct. If a spell is not visible, make sure the the name is correctly spelled and in the list.
 
 ## Changelog
+### v1.5.4
+- Added out of combat evade usage
+- Adjusted default spell priority
+- Fixed Concussive Stomp
+
 ### v1.5.3
 - Updated horde objectives
 

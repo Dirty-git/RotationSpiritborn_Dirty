@@ -5,12 +5,11 @@
 local spell_priority = {
     -- instant cast
     "armored_hide",
-    "counterattack",
     "scourge",
+    "counterattack",
     "ravager",
     "toxic_skin",
     "vortex",
-    "evade",
 
     -- ultimates
     "the_hunter",
@@ -31,6 +30,7 @@ local spell_priority = {
     -- mobility
     "soar",
     "rushing_claw",
+    "evade",
 
     -- filler abilities
     "rock_splitter",
