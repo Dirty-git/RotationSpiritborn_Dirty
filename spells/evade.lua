@@ -4,28 +4,34 @@ local spell_data = require("my_utility/spell_data")
 local max_spell_range = 17.0
 local menu_elements =
 {
-    tree_tab          = tree_node:new(1),
-    main_boolean      = checkbox:new(false, get_hash(my_utility.plugin_label .. "evade_main_bool_base")),
-    use_out_of_combat = checkbox:new(false, get_hash(my_utility.plugin_label .. "evade_use_out_of_combat")),
-    targeting_mode    = combo_box:new(5, get_hash(my_utility.plugin_label .. "evade_targeting_mode")),
-    mobility_only     = checkbox:new(false, get_hash(my_utility.plugin_label .. "evade_mobility_only")),
-    min_target_range  = slider_float:new(3, max_spell_range - 1, 5,
+    tree_tab            = tree_node:new(1),
+    main_boolean        = checkbox:new(false, get_hash(my_utility.plugin_label .. "evade_main_bool_base")),
+    use_out_of_combat   = checkbox:new(false, get_hash(my_utility.plugin_label .. "evade_use_out_of_combat")),
+    targeting_mode      = combo_box:new(5, get_hash(my_utility.plugin_label .. "evade_targeting_mode")),
+    mobility_only       = checkbox:new(false, get_hash(my_utility.plugin_label .. "evade_mobility_only")),
+    min_target_range    = slider_float:new(3, max_spell_range - 1, 5,
         get_hash(my_utility.plugin_label .. "evade_min_target_range")),
+    min_ooc_evade_range = slider_float:new(2.5, 5, 3,
+        get_hash(my_utility.plugin_label .. "min_ooc_evade_range")),
 }
 
 local function menu()
-    if menu_elements.tree_tab:push("Evade - only for evade build") then
-        menu_elements.use_out_of_combat:render("Enable Evade - Out of combat", "")
+    if menu_elements.tree_tab:push("Evade") then
         menu_elements.main_boolean:render("Enable Evade - In combat", "")
-
         if menu_elements.main_boolean:get() then
             menu_elements.targeting_mode:render("Targeting Mode", my_utility.targeting_modes,
                 my_utility.targeting_mode_description)
             menu_elements.mobility_only:render("Only use for mobility", "")
             if menu_elements.mobility_only:get() then
-                menu_elements.min_target_range:render("Minimum Target Range",
+                menu_elements.min_target_range:render("Min Target Distance",
                     "\n     Must be lower than Max Targeting Range     \n\n", 1)
             end
+        end
+
+        menu_elements.use_out_of_combat:render("Enable Evade - Out of combat", "")
+        if menu_elements.use_out_of_combat:get() then
+            menu_elements.min_ooc_evade_range:render("Min Distance Out of Combat",
+                "\n     Minimum travel distance to use evade out of combat     \n\n", 1)
         end
 
         menu_elements.tree_tab:pop()
@@ -86,11 +92,18 @@ local function out_of_combat()
     if not is_moving or is_dashing then return false end;
 
     local destination = local_player:get_move_destination()
-    if cast_spell.position(spell_data.evade.spell_id, destination, 0) then
-        local current_time = get_time_since_inject();
-        next_time_allowed_cast = current_time + my_utility.spell_delays.regular_cast;
-        console.print("Cast Evade - Out of Combat")
-        return true;
+    local player_position = local_player:get_position()
+    local travel_distance_sqr = player_position:squared_dist_to_ignore_z(destination)
+    local min_evade_distance = menu_elements.min_ooc_evade_range:get()
+    local min_distance_sqr = min_evade_distance * min_evade_distance
+
+    if travel_distance_sqr >= min_distance_sqr then
+        if cast_spell.position(spell_data.evade.spell_id, destination, 0) then
+            local current_time = get_time_since_inject();
+            next_time_allowed_cast = current_time + my_utility.spell_delays.regular_cast;
+            console.print("Cast Evade - Out of Combat")
+            return true;
+        end
     end
 
     return false;
