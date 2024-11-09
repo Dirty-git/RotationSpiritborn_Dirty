@@ -88,8 +88,23 @@ local function out_of_combat()
     local is_moving = local_player:is_moving()
     local is_dashing = local_player:is_dashing()
 
-    -- if standing still or already dashing
-    if not is_moving or is_dashing then return false end;
+    -- if standing still
+    if not is_moving then return false end;
+
+    local targeting_mode = menu_elements.targeting_mode:get();
+    -- if we are using cursor targeting modes then its safe to assume self play
+    if targeting_mode == 6 or targeting_mode == 7 then
+        local destination = get_cursor_position()
+        if cast_spell.position(spell_data.evade.spell_id, destination, 0) then
+            local current_time = get_time_since_inject();
+            next_time_allowed_cast = current_time + my_utility.spell_delays.regular_cast;
+            console.print("Cast Evade - Out of Combat - Cursor")
+            return true;
+        end
+    end
+
+    -- if not self play then we dont want to spam evade
+    if is_dashing then return false end;
 
     local destination = local_player:get_move_destination()
     local player_position = local_player:get_position()
@@ -101,7 +116,7 @@ local function out_of_combat()
         if cast_spell.position(spell_data.evade.spell_id, destination, 0) then
             local current_time = get_time_since_inject();
             next_time_allowed_cast = current_time + my_utility.spell_delays.regular_cast;
-            console.print("Cast Evade - Out of Combat")
+            console.print("Cast Evade - Out of Combat - Move Destination")
             return true;
         end
     end

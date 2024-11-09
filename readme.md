@@ -12,6 +12,10 @@ The priority of spells can be adjusted by changing the sequence in spell_priorit
 Note: This also reorders the spells in the UI. So you can check in-game if the priority is correct. If a spell is not visible, make sure the the name is correctly spelled and in the list.
 
 ## Changelog
+### v1.5.6
+- Improved evade speed if player controlled
+- increased max targeting range
+
 ### v1.5.5
 - Added min distance to out of combat evade
 
